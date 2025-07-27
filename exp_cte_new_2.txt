@@ -1,0 +1,117 @@
+3.053
+Expression ((Project names + (Projection + )))
+  Expression
+    Join
+      Expression
+        Expression
+          Expression
+            Join
+              Expression
+                Expression
+                  Expression
+                    Join
+                      Filter (( + ))
+                        Expression
+                          Join
+                            Expression
+                              Filter (( + ( + (Change column names to column identifiers + (Project names + Projection)))))
+                                Window (Window step for window \'PARTITION BY __table4.order_id, __table4.model, __table4.source ORDER BY caseWithExpression(__table4.attribution_type, \'regular\'_String, 1_UInt8, \'meta_shop\'_String, 2_UInt8, \'tiktok_shop\'_String, 2_UInt8, \'attributed from shopify\'_String, 3_UInt8, \'attributed from triplesurvey\'_String, 4_UInt8, \'attributed from kno\'_String, 5_UInt8, \'attributed from enquirelabs\'_String, 6_UInt8, 7_UInt8) ASC\')
+                                  Expression ((Before WINDOW + ) [split] [lifted up part])
+                                    Sorting (Sorting for window \'PARTITION BY __table4.order_id, __table4.model, __table4.source ORDER BY caseWithExpression(__table4.attribution_type, \'regular\'_String, 1_UInt8, \'meta_shop\'_String, 2_UInt8, \'tiktok_shop\'_String, 2_UInt8, \'attributed from shopify\'_String, 3_UInt8, \'attributed from triplesurvey\'_String, 4_UInt8, \'attributed from kno\'_String, 5_UInt8, \'attributed from enquirelabs\'_String, 6_UInt8, 7_UInt8) ASC\')
+                                      Expression ((Before WINDOW + ) [split])
+                                        ArrayJoin (ARRAY JOIN)
+                                          Union
+                                            Expression ((Before WINDOW + ))
+                                              Filter ((( + (DROP unused columns before ARRAY JOIN + (ARRAY JOIN actions + (Change column names to column identifiers + (Project names + Projection))))) + ((WHERE + (Change column names to column identifiers + (Project names + Projection))) + (WHERE + Change column names to column identifiers))))
+                                                ReadFromMergeTree (sonic_system.pixel_orders_data)
+                                            Expression ((Before WINDOW + ))
+                                              CreatingSets (Create sets before main query execution)
+                                                Filter
+                                                  ReadFromMergeTree (sonic_system.pixel_orders_data)
+                            Filter (( + (Change column names to column identifiers + (Project names + (Projection + )))))
+                              Expression
+                                Join
+                                  Filter
+                                    Expression
+                                      Join
+                                        Expression
+                                          Union
+                                            Filter ((( + (Change column names to column identifiers + (Project names + Projection))) + ((WHERE + (Change column names to column identifiers + (Project names + Projection))) + (WHERE + Change column names to column identifiers))))
+                                              ReadFromMergeTree (sonic_system.orders)
+                                            CreatingSets (Create sets before main query execution)
+                                              Filter
+                                                ReadFromMergeTree (sonic_system.orders)
+                                        Expression
+                                          Expression ((Change column names to column identifiers + (Project names + (Projection + Change column names to column identifiers))))
+                                            ReadFromStorage (SystemOne)
+                                  Expression
+                                    Filter ((( + (Change column names to column identifiers + (Project names + Projection))) + (WHERE + Change column names to column identifiers)))
+                                      ReadFromMergeTree (sonic_system.currency_convert_to_usd)
+                      Filter (( + (Change column names to column identifiers + (Project names + Projection))))
+                        Aggregating
+                          Expression ((Before GROUP BY + ))
+                            Expression
+                              Join
+                                Expression
+                                  Expression
+                                    ArrayJoin (ARRAY JOIN)
+                                      Filter ((( + ) + (DROP unused columns before ARRAY JOIN + (ARRAY JOIN actions + Change column names to column identifiers))))
+                                        ReadFromPreparedSource (Read from NullSource)
+                                Filter ((( + (Change column names to column identifiers + (Project names + Projection))) + (WHERE + Change column names to column identifiers)))
+                                  ReadFromPreparedSource (Read from NullSource)
+              Filter (( + (Change column names to column identifiers + (Project names + Projection))))
+                Expression
+                  Join
+                    Expression
+                      Expression
+                        Join
+                          Expression
+                            Join
+                              Expression ((Change column names to column identifiers + Project names))
+                                Distinct (DISTINCT)
+                                  Distinct (Preliminary DISTINCT)
+                                    Expression (Projection)
+                                      Expression
+                                        Join
+                                          Expression ((Change column names to column identifiers + (Project names + Projection)))
+                                            Filter ((WHERE + Change column names to column identifiers))
+                                              ReadFromMergeTree (sonic_system.ads_attributes)
+                                          Expression ((Change column names to column identifiers + (Project names + Projection)))
+                                            Aggregating
+                                              Expression (Before GROUP BY)
+                                                Filter ((WHERE + (Change column names to column identifiers + (Project names + Projection))))
+                                                  Window (Window step for window \'PARTITION BY __table40.id, __table40.metric ORDER BY __table40.created_at DESC\')
+                                                    Sorting (Sorting for window \'PARTITION BY __table40.id, __table40.metric ORDER BY __table40.created_at DESC\')
+                                                      Expression (Before WINDOW)
+                                                        Filter ((WHERE + Change column names to column identifiers))
+                                                          ReadFromPreparedSource (Read from NullSource)
+                              Expression ((Change column names to column identifiers + Project names))
+                                Distinct (DISTINCT)
+                                  Distinct (Preliminary DISTINCT)
+                                    Expression (Projection)
+                                      Expression
+                                        Join
+                                          Expression ((Change column names to column identifiers + (Project names + Projection)))
+                                            Filter ((WHERE + Change column names to column identifiers))
+                                              ReadFromMergeTree (sonic_system.adsets_attributes)
+                                          Expression ((Change column names to column identifiers + (Project names + Projection)))
+                                            Aggregating
+                                              Expression (Before GROUP BY)
+                                                Filter ((WHERE + (Change column names to column identifiers + (Project names + Projection))))
+                                                  Window (Window step for window \'PARTITION BY __table46.id, __table46.metric ORDER BY __table46.created_at DESC\')
+                                                    Sorting (Sorting for window \'PARTITION BY __table46.id, __table46.metric ORDER BY __table46.created_at DESC\')
+                                                      Expression (Before WINDOW)
+                                                        Filter ((WHERE + Change column names to column identifiers))
+                                                          ReadFromPreparedSource (Read from NullSource)
+                          Expression ((Change column names to column identifiers + Project names))
+                            Distinct (DISTINCT)
+                              Distinct (Preliminary DISTINCT)
+                                Expression (Projection)
+                                  Filter ((WHERE + Change column names to column identifiers))
+                                    ReadFromMergeTree (sonic_system.campaigns_attributes)
+                    Expression
+                      Expression ((Change column names to column identifiers + (Project names + (Projection + Change column names to column identifiers))))
+                        ReadFromStorage (SystemOne)
+      Expression
+        Filter ((( + (Change column names to column identifiers + (Project names + Projection))) + (WHERE + Change column names to column identifiers)))
+          ReadFromMergeTree (sonic_system.currency_convert_to_usd)

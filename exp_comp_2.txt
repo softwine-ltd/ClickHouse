@@ -1,0 +1,32 @@
+Expression ((Project names + Projection))
+  Aggregating
+    Union
+      Expression (Before GROUP BY)
+        Filter (((WHERE + (Change column names to column identifiers + (Project names + Projection))) + (WHERE + Change column names to column identifiers)))
+          ReadFromMergeTree (sonic_system.pixel_orders_data)
+      Expression (Before GROUP BY)
+        CreatingSets (Create sets before main query execution)
+          Filter
+            ReadFromMergeTree (sonic_system.pixel_orders_data)
+Expression ((Project names + Projection))
+  Aggregating
+    Union
+      Expression (Before GROUP BY)
+        Filter (((WHERE + (Change column names to column identifiers + (Project names + Projection))) + (WHERE + Change column names to column identifiers)))
+          ReadFromMergeTree (sonic_system.orders)
+      Expression (Before GROUP BY)
+        CreatingSets (Create sets before main query execution)
+          Filter
+            ReadFromMergeTree (sonic_system.orders)
+Expression ((Project names + Projection))
+  Aggregating
+    Expression (Before GROUP BY)
+      Expression
+        Join
+          Expression ((Change column names to column identifiers + (Project names + Projection)))
+            Expression
+              ReadFromMergeTree (sonic_system.orders)
+          Expression
+            Expression ((Change column names to column identifiers + (Project names + Projection)))
+              Expression
+                ReadFromMergeTree (sonic_system.pixel_orders_data)

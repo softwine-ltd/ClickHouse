@@ -1,0 +1,230 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    ad.datadoghq.com/clickhouse.checks: '{"clickhouse":{"init_config":{},"instances":[{"server":"%%host%%","port":9000,"username":"datadog","password":"hmjejiLDaqJTuIe4"}]}}'
+  creationTimestamp: "2025-07-20T08:38:50Z"
+  generateName: chi-sonic-sharded-main-0-0-
+  labels:
+    app.kubernetes.io/managed-by: pulumi
+    apps.kubernetes.io/pod-index: "0"
+    clickhouse.altinity.com/app: chop
+    clickhouse.altinity.com/chi: sonic-sharded
+    clickhouse.altinity.com/cluster: main
+    clickhouse.altinity.com/namespace: clickhouse-sharded
+    clickhouse.altinity.com/ready: "yes"
+    clickhouse.altinity.com/replica: "0"
+    clickhouse.altinity.com/shard: "0"
+    controller-revision-hash: chi-sonic-sharded-main-0-0-c896495cc
+    statefulset.kubernetes.io/pod-name: chi-sonic-sharded-main-0-0-0
+  name: chi-sonic-sharded-main-0-0-0
+  namespace: clickhouse-sharded
+  ownerReferences:
+  - apiVersion: apps/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: StatefulSet
+    name: chi-sonic-sharded-main-0-0
+    uid: 1fd829fe-1da5-45ff-9a60-69a77e5d913f
+  resourceVersion: "804770343"
+  uid: 2465924f-7c14-4a40-9c8b-44f7041302e9
+spec:
+  containers:
+  - image: clickhouse:25.3.2.39
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 30
+      httpGet:
+        path: /ping
+        port: interserver
+        scheme: HTTP
+      initialDelaySeconds: 60
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    name: clickhouse
+    ports:
+    - containerPort: 9000
+      name: tcp
+      protocol: TCP
+    - containerPort: 8123
+      name: http
+      protocol: TCP
+    - containerPort: 9009
+      name: interserver
+      protocol: TCP
+    readinessProbe:
+      failureThreshold: 10
+      httpGet:
+        path: /ping
+        port: interserver
+        scheme: HTTP
+      initialDelaySeconds: 10
+      periodSeconds: 3
+      successThreshold: 1
+      timeoutSeconds: 1
+    resources:
+      limits:
+        cpu: "16"
+        memory: 80Gi
+      requests:
+        cpu: "8"
+        memory: 20Gi
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/lib/clickhouse
+      name: sonic-sharded
+    - mountPath: /var/lib/bod
+      name: bod
+    - mountPath: /etc/clickhouse-server/config.d/
+      name: chi-sonic-sharded-common-configd
+    - mountPath: /etc/clickhouse-server/users.d/
+      name: chi-sonic-sharded-common-usersd
+    - mountPath: /etc/clickhouse-server/conf.d/
+      name: chi-sonic-sharded-deploy-confd-main-0-0
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-q2lx9
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  hostAliases:
+  - hostnames:
+    - chi-sonic-sharded-main-0-0
+    ip: 127.0.0.1
+  hostname: chi-sonic-sharded-main-0-0-0
+  nodeName: gke-sonic-cluster-e2-standard-16-a525-0ce243c3-o9zk
+  nodeSelector:
+    addon.gke.io/node-local-dns-ds-ready: "true"
+    iam.gke.io/gke-metadata-server-enabled: "true"
+    triplewhale.com/pool-target: 0hiWVYCR
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  readinessGates:
+  - conditionType: cloud.google.com/load-balancer-neg-ready
+  restartPolicy: Always
+  schedulerName: gke.io/optimize-utilization-scheduler
+  securityContext: {}
+  serviceAccount: sonic-sharded-ch
+  serviceAccountName: sonic-sharded-ch
+  subdomain: chi-sonic-sharded-main-0-0
+  terminationGracePeriodSeconds: 300
+  tolerations:
+  - effect: NoSchedule
+    key: triplewhale.com/private-pool
+    operator: Equal
+    value: 0hiWVYCR
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: sonic-sharded
+    persistentVolumeClaim:
+      claimName: sonic-sharded-chi-sonic-sharded-main-0-0-0
+  - name: bod
+    persistentVolumeClaim:
+      claimName: bod-chi-sonic-sharded-main-0-0-0
+  - configMap:
+      defaultMode: 420
+      name: chi-sonic-sharded-common-configd
+    name: chi-sonic-sharded-common-configd
+  - configMap:
+      defaultMode: 420
+      name: chi-sonic-sharded-common-usersd
+    name: chi-sonic-sharded-common-usersd
+  - configMap:
+      defaultMode: 420
+      name: chi-sonic-sharded-deploy-confd-main-0-0
+    name: chi-sonic-sharded-deploy-confd-main-0-0
+  - name: kube-api-access-q2lx9
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: null
+    message: 'Pod has become Healthy in NEG "Key{\"k8s1-3951737b-clickhouse-sha-sonic-sharded-clickhou-81-93f13b76\",
+      zone: \"us-central1-b\"}" attached to BackendService "Key{\"k8s1-3951737b-clickhouse-sha-sonic-sharded-clickhou-81-93f13b76\",
+      region: \"us-central1\"}". Marking condition "cloud.google.com/load-balancer-neg-ready"
+      to True.'
+    reason: LoadBalancerNegReady
+    status: "True"
+    type: cloud.google.com/load-balancer-neg-ready
+  - lastProbeTime: null
+    lastTransitionTime: "2025-07-20T08:38:58Z"
+    status: "True"
+    type: PodReadyToStartContainers
+  - lastProbeTime: null
+    lastTransitionTime: "2025-07-20T08:38:50Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2025-07-20T08:39:10Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2025-07-20T08:39:07Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2025-07-20T08:38:50Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: containerd://0f327652b0149b15d31fd28ce5627a6f3c5d7ce1d2722e9ac3b18cc03c9daadb
+    image: docker.io/library/clickhouse:25.3.2.39
+    imageID: docker.io/library/clickhouse@sha256:968a846c076df76ad7da705517e7bafb962b1db615b2526c1f13995e2fa39781
+    lastState: {}
+    name: clickhouse
+    ready: true
+    restartCount: 0
+    started: true
+    state:
+      running:
+        startedAt: "2025-07-20T08:38:57Z"
+    volumeMounts:
+    - mountPath: /var/lib/clickhouse
+      name: sonic-sharded
+    - mountPath: /var/lib/bod
+      name: bod
+    - mountPath: /etc/clickhouse-server/config.d/
+      name: chi-sonic-sharded-common-configd
+    - mountPath: /etc/clickhouse-server/users.d/
+      name: chi-sonic-sharded-common-usersd
+    - mountPath: /etc/clickhouse-server/conf.d/
+      name: chi-sonic-sharded-deploy-confd-main-0-0
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-q2lx9
+      readOnly: true
+      recursiveReadOnly: Disabled
+  hostIP: 10.46.1.165
+  hostIPs:
+  - ip: 10.46.1.165
+  - ip: '2600:1900:4000:deee:0:479::'
+  phase: Running
+  podIP: 10.216.37.49
+  podIPs:
+  - ip: 10.216.37.49
+  - ip: 2600:1900:4000:deee:0:479:0:31
+  qosClass: Burstable
+  startTime: "2025-07-20T08:38:50Z"

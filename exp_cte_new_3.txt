@@ -1,0 +1,263 @@
+3.145
+(Expression)
+ExpressionTransform × 16
+  (Expression)
+  ExpressionTransform × 16
+    (Join)
+    ColumnPermuteTransform × 16
+      JoiningTransform × 16 2 → 1
+        (Expression)
+        ExpressionTransform × 16
+          (Expression)
+          ExpressionTransform × 16
+            (Expression)
+            ExpressionTransform × 16
+              (Join)
+              ColumnPermuteTransform × 16
+                JoiningTransform × 16 2 → 1
+                  (Expression)
+                  ExpressionTransform × 16
+                    (Expression)
+                    ExpressionTransform × 16
+                      (Expression)
+                      ExpressionTransform × 16
+                        (Join)
+                        JoiningTransform × 16 2 → 1
+                          (Filter)
+                          FilterTransform × 64
+                            (Expression)
+                            ExpressionTransform × 16
+                              (Join)
+                              ColumnPermuteTransform × 16
+                                JoiningTransform × 16 2 → 1
+                                  (Expression)
+                                  ExpressionTransform × 16
+                                    (Filter)
+                                    FilterTransform × 32
+                                      (Window)
+                                      Resize 4 → 16
+                                        WindowTransform × 4
+                                          (Expression)
+                                          ExpressionTransform × 4
+                                            (Sorting)
+                                            MergeSortingTransform × 4
+                                              LimitsCheckingTransform × 4
+                                                PartialSortingTransform × 4
+                                                  Resize × 4 4 → 1
+                                                    ScatterByPartitionTransform × 4 1 → 4
+                                                      (Expression)
+                                                      ExpressionTransform × 4
+                                                        (ArrayJoin)
+                                                        ArrayJoinTransform × 4
+                                                          (Union)
+                                                            (Expression)
+                                                            ExpressionTransform
+                                                              (Filter)
+                                                              FilterTransform × 8
+                                                                (ReadFromMergeTree)
+                                                            (Expression)
+                                                            ExpressionTransform × 3
+                                                              (CreatingSets)
+                                                                (Filter)
+                                                                FilterTransform × 3
+                                                                  (ReadFromMergeTree)
+                                                                  MergeTreeSelect(pool: ReadPool, algorithm: Thread) × 3 0 → 1
+                                  (Filter)
+                                  Resize 1 → 16
+                                    FillingRightJoinSide
+                                      Resize 4 → 1
+                                        FilterTransform × 4
+                                          (Expression)
+                                          ExpressionTransform × 4
+                                            (Join)
+                                            ColumnPermuteTransform × 4
+                                              JoiningTransform × 4 2 → 1
+                                                (Filter)
+                                                FilterTransform × 4
+                                                  (Expression)
+                                                  ExpressionTransform × 4
+                                                    (Join)
+                                                    JoiningTransform × 4 2 → 1
+                                                      (Expression)
+                                                      ExpressionTransform × 4
+                                                        (Union)
+                                                          (Filter)
+                                                          FilterTransform × 6
+                                                            (ReadFromMergeTree)
+                                                          (CreatingSets)
+                                                            (Filter)
+                                                            FilterTransform × 3
+                                                              (ReadFromMergeTree)
+                                                              MergeTreeSelect(pool: ReadPool, algorithm: Thread) × 3 0 → 1
+                                                      (Expression)
+                                                      Resize 1 → 4
+                                                        FillingRightJoinSide
+                                                          ExpressionTransform
+                                                            (Expression)
+                                                            ExpressionTransform
+                                                              (ReadFromStorage)
+                                                              SourceFromSingleChunk 0 → 1
+                                                (Expression)
+                                                Resize 1 → 4
+                                                  FillingRightJoinSide
+                                                    ExpressionTransform
+                                                      (Filter)
+                                                      FilterTransform × 4
+                                                        (ReadFromMergeTree)
+                                                        MergeTreeSelect(pool: ReadPoolInOrder, algorithm: InOrder) 0 → 1
+                          (Filter)
+                          Resize 1 → 16
+                            FillingRightJoinSide
+                              Resize 16 → 1
+                                FilterTransform × 16
+                                  (Aggregating)
+                                  Resize 1 → 16
+                                    AggregatingTransform
+                                      (Expression)
+                                      ExpressionTransform
+                                        (Expression)
+                                        ExpressionTransform
+                                          (Join)
+                                          JoiningTransform 2 → 1
+                                            (Expression)
+                                            ExpressionTransform
+                                              (Expression)
+                                              ExpressionTransform
+                                                (ArrayJoin)
+                                                ArrayJoinTransform
+                                                  (Filter)
+                                                  FilterTransform × 3
+                                                    (ReadFromPreparedSource)
+                                                    NullSource 0 → 1
+                                            (Filter)
+                                            FillingRightJoinSide
+                                              FilterTransform × 2
+                                                (ReadFromPreparedSource)
+                                                NullSource 0 → 1
+                  (Filter)
+                  Resize 1 → 16
+                    FillingRightJoinSide
+                      FilterTransform
+                        (Expression)
+                        ExpressionTransform
+                          (Join)
+                          ColumnPermuteTransform
+                            JoiningTransform 2 → 1
+                              (Expression)
+                              ExpressionTransform
+                                (Expression)
+                                ExpressionTransform
+                                  (Join)
+                                  JoiningTransform 2 → 1
+                                    (Expression)
+                                    ExpressionTransform
+                                      (Join)
+                                      JoiningTransform 2 → 1
+                                        (Expression)
+                                        ExpressionTransform
+                                          (Distinct)
+                                          DistinctTransform
+                                            (Distinct)
+                                            DistinctTransform
+                                              (Expression)
+                                              ExpressionTransform
+                                                (Expression)
+                                                ExpressionTransform
+                                                  (Join)
+                                                  JoiningTransform 2 → 1
+                                                    (Expression)
+                                                    ExpressionTransform
+                                                      (Filter)
+                                                      FilterTransform × 3
+                                                        (ReadFromMergeTree)
+                                                    (Expression)
+                                                    FillingRightJoinSide
+                                                      Resize 16 → 1
+                                                        ExpressionTransform × 16
+                                                          (Aggregating)
+                                                          Resize 1 → 16
+                                                            AggregatingTransform
+                                                              (Expression)
+                                                              ExpressionTransform
+                                                                (Filter)
+                                                                FilterTransform
+                                                                  (Window)
+                                                                  WindowTransform
+                                                                    (Sorting)
+                                                                    MergeSortingTransform
+                                                                      LimitsCheckingTransform
+                                                                        PartialSortingTransform
+                                                                          (Expression)
+                                                                          ExpressionTransform
+                                                                            (Filter)
+                                                                            FilterTransform × 2
+                                                                              (ReadFromPreparedSource)
+                                                                              NullSource 0 → 1
+                                        (Expression)
+                                        FillingRightJoinSide
+                                          ExpressionTransform
+                                            (Distinct)
+                                            DistinctTransform
+                                              (Distinct)
+                                              DistinctTransform
+                                                (Expression)
+                                                ExpressionTransform
+                                                  (Expression)
+                                                  ExpressionTransform
+                                                    (Join)
+                                                    JoiningTransform 2 → 1
+                                                      (Expression)
+                                                      ExpressionTransform
+                                                        (Filter)
+                                                        FilterTransform × 3
+                                                          (ReadFromMergeTree)
+                                                      (Expression)
+                                                      FillingRightJoinSide
+                                                        Resize 16 → 1
+                                                          ExpressionTransform × 16
+                                                            (Aggregating)
+                                                            Resize 1 → 16
+                                                              AggregatingTransform
+                                                                (Expression)
+                                                                ExpressionTransform
+                                                                  (Filter)
+                                                                  FilterTransform
+                                                                    (Window)
+                                                                    WindowTransform
+                                                                      (Sorting)
+                                                                      MergeSortingTransform
+                                                                        LimitsCheckingTransform
+                                                                          PartialSortingTransform
+                                                                            (Expression)
+                                                                            ExpressionTransform
+                                                                              (Filter)
+                                                                              FilterTransform × 2
+                                                                                (ReadFromPreparedSource)
+                                                                                NullSource 0 → 1
+                                    (Expression)
+                                    FillingRightJoinSide
+                                      ExpressionTransform
+                                        (Distinct)
+                                        DistinctTransform
+                                          (Distinct)
+                                          DistinctTransform
+                                            (Expression)
+                                            ExpressionTransform
+                                              (Filter)
+                                              FilterTransform × 3
+                                                (ReadFromMergeTree)
+                              (Expression)
+                              FillingRightJoinSide
+                                ExpressionTransform
+                                  (Expression)
+                                  ExpressionTransform
+                                    (ReadFromStorage)
+                                    SourceFromSingleChunk 0 → 1
+        (Expression)
+        Resize 1 → 16
+          FillingRightJoinSide
+            ExpressionTransform
+              (Filter)
+              FilterTransform × 4
+                (ReadFromMergeTree)
+                MergeTreeSelect(pool: ReadPoolInOrder, algorithm: InOrder) 0 → 1
