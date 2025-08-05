@@ -15,10 +15,11 @@ kubectl exec -it chi-sonic-sharded-main-0-0-0 --namespace clickhouse-sharded -c 
 clickhouse=clickhouse:24.12.6.70 - works well 6.802
                       25.1.5.31- a bit slower 8.106,7.465
                       25.1.7.20  failed to resolve reference 
-                      25.1.8.25 - slower (22.903 - anommaly ,)7.517,7.773
+                      25.1.8.25 - slower (22.903 - anommaly ,)7.517,7.773 base cte: 1.5-2
                                 - tests on 20/7/25 shows 8.323, 8.063, 7.908
                       25.3.2.39 - 13.656?
                       25.4.1.2934 - 14.195,14.240
+                      25.7.1.3997 -  19.043,   base cte: 3.8,4, 3.9
 25.1.8.25<>25.3.2.39
 990179ead8b70778910b7ec8c7cdd14d798918a0<>http://github.com/ClickHouse/ClickHouse/commit/3ec1fd3f6908a2eb035fe773c0658aa4d16c0dd4
 next steps:

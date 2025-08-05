@@ -44,11 +44,7 @@
                     order_id,
                     p.order_name,
                     p.source_name as source_name,
-                    if(
-                        model in ('Linear Paid', 'Linear All'),
-                        linear_weight,
-                        1
-                    ) AS orders_quantity,
+                    linear_weight AS orders_quantity,
                     COALESCE(tw_total_items, 0) AS product_quantity_sold_in_order,
                     COALESCE(o.customer_id, p.customer_id) as customer_id,
                     coalesce(tw_is_first_order, is_new_customer) AS is_new_customer,
@@ -60,87 +56,23 @@
                     customer_from_city,
                     fulfillment_status,
                     currency,
-                    COALESCE(order_price, total_price, 0) * if(
-                        model in ('Linear Paid', 'Linear All'),
-                        linear_weight,
-                        1
-                    ) * coalesce(currency_rate, 1) AS gross_sales,
-                    COALESCE(order_price, total_price, 0) * if(
-                        model in ('Linear Paid', 'Linear All'),
-                        linear_weight,
-                        1
-                    ) * coalesce(currency_rate, 1) AS order_revenue,
-                    COALESCE(gross_product_sales, 0) * if(
-                        model in ('Linear Paid', 'Linear All'),
-                        linear_weight,
-                        1
-                    ) * coalesce(currency_rate, 1) AS gross_product_sales,
-                    COALESCE(tw_total_shipping_price, 0) * if(
-                        model in ('Linear Paid', 'Linear All'),
-                        linear_weight,
-                        1
-                    ) * coalesce(currency_rate, 1) AS shipping_price,
-                    coalesce(tw_total_shipping_tax, 0) * if(
-                        model in ('Linear Paid', 'Linear All'),
-                        linear_weight,
-                        1
-                    ) * coalesce(currency_rate, 1) as shipping_tax,
-                    COALESCE(tw_total_tax, 0) * if(
-                        model in ('Linear Paid', 'Linear All'),
-                        linear_weight,
-                        1
-                    ) * coalesce(currency_rate, 1) AS taxes,
-                    coalesce(shipping_costs, 0) * if(
-                        model in ('Linear Paid', 'Linear All'),
-                        linear_weight,
-                        1
-                    ) * coalesce(currency_rate, 1) as shipping_costs,
-                    coalesce(payment_gateway_fees_and_costs, 0) * if(
-                        model in ('Linear Paid', 'Linear All'),
-                        linear_weight,
-                        1
-                    ) * coalesce(currency_rate, 1) as payment_gateway_costs,
-                    coalesce(cogs, 0) * if(
-                        model in ('Linear Paid', 'Linear All'),
-                        linear_weight,
-                        1
-                    ) * coalesce(currency_rate, 1) as cogs,
+                    COALESCE(order_price, total_price, 0) * linear_weight * coalesce(currency_rate, 1) AS gross_sales,
+                    COALESCE(order_price, total_price, 0) * linear_weight * coalesce(currency_rate, 1) AS order_revenue,
+                    COALESCE(gross_product_sales, 0) * linear_weight * coalesce(currency_rate, 1) AS gross_product_sales,
+                    COALESCE(tw_total_shipping_price, 0) * linear_weight * coalesce(currency_rate, 1) AS shipping_price,
+                    coalesce(tw_total_shipping_tax, 0) * linear_weight * coalesce(currency_rate, 1) as shipping_tax,
+                    COALESCE(tw_total_tax, 0) * linear_weight * coalesce(currency_rate, 1) AS taxes,
+                    coalesce(shipping_costs, 0) * linear_weight * coalesce(currency_rate, 1) as shipping_costs,
+                    coalesce(payment_gateway_fees_and_costs, 0) * linear_weight * coalesce(currency_rate, 1) as payment_gateway_costs,
+                    coalesce(cogs, 0) * linear_weight * coalesce(currency_rate, 1) as cogs,
                     cogs as cost_of_goods,
-                    coalesce(total_handling_fees, 0) * if(
-                        model in ('Linear Paid', 'Linear All'),
-                        linear_weight,
-                        1
-                    ) * coalesce(currency_rate, 1) as handling_fees,
-                    COALESCE(total_discounts, 0) * if(
-                        model in ('Linear Paid', 'Linear All'),
-                        linear_weight,
-                        1
-                    ) * coalesce(currency_rate, 1) AS discount_amount,
-                    coalesce(refund_money, 0) * if(
-                        model in ('Linear Paid', 'Linear All'),
-                        linear_weight,
-                        1
-                    ) * coalesce(currency_rate, 1) as refund_money,
-                    coalesce(tw_custom_expenses, 0) * if(
-                        model in ('Linear Paid', 'Linear All'),
-                        linear_weight,
-                        1
-                    ) * coalesce(currency_rate, 1) as custom_expenses,
-                    coalesce(tw_custom_gross_sales, 0) * if(
-                        model in ('Linear Paid', 'Linear All'),
-                        linear_weight,
-                        1
-                    ) * coalesce(currency_rate, 1) as custom_gross_sales,
-                    coalesce(tw_custom_net_revenue, 0) * if(
-                        model in ('Linear Paid', 'Linear All'),
-                        linear_weight,
-                        1
-                    ) * coalesce(currency_rate, 1) as custom_net_revenue,
-                    coalesce(tw_custom_gross_profit, 0) * if(
-                        model in ('Linear Paid', 'Linear All'),
-                        linear_weight,
-                        1
-                    ) * coalesce(currency_rate, 1) as custom_gross_profit,
+                    coalesce(total_handling_fees, 0) * linear_weight * coalesce(currency_rate, 1) as handling_fees,
+                    COALESCE(total_discounts, 0) * linear_weight * coalesce(currency_rate, 1) AS discount_amount,
+                    coalesce(refund_money, 0) * linear_weight * coalesce(currency_rate, 1) as refund_money,
+                    coalesce(tw_custom_expenses, 0) * linear_weight * coalesce(currency_rate, 1) as custom_expenses,
+                    coalesce(tw_custom_gross_sales, 0) * linear_weight * coalesce(currency_rate, 1) as custom_gross_sales,
+                    coalesce(tw_custom_net_revenue, 0) * linear_weight * coalesce(currency_rate, 1) as custom_net_revenue,
+                    coalesce(tw_custom_gross_profit, 0) * linear_weight * coalesce(currency_rate, 1) as custom_gross_profit,
                     coalesce(tw_custom_total_items_quantity, 0) as custom_total_items_quantity,
                     coalesce(tw_custom_orders_quantity, 0) as custom_orders_quantity,
                     coalesce(tw_custom_status, CAST(NULL AS Nullable(String))) as custom_status,

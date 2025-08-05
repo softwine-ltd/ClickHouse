@@ -1,0 +1,193 @@
+--- a/src/Analyzer/Resolve/IdentifierResolver.h
++++ b/src/Analyzer/Resolve/IdentifierResolver.h
+@@ -27,8 +27,13 @@ struct Settings;
+ class IdentifierResolver
+ {
+ public:
++    // Performance optimization: fast path for simple identifier resolution
++    static thread_local bool enable_fast_path;
+ 
+-    explicit IdentifierResolver(std::unordered_map<QueryTreeNodePtr, ProjectionName> & node_to_projection_name_)
++    explicit IdentifierResolver(
++        std::unordered_map<QueryTreeNodePtr, ProjectionName> & node_to_projection_name_,
++        bool enable_fast_path_ = true)
+         : node_to_projection_name(node_to_projection_name_)
++        , use_fast_path(enable_fast_path_)
+     {}
+ 
+     /// Utility functions
+@@ -42,6 +47,15 @@ public:
+         std::optional<JoinTableSide> resolved_side,
+         IdentifierResolveScope & scope);
+ 
++    /// Fast path for simple identifier resolution (performance optimization)
++    QueryTreeNodePtr tryResolveIdentifierFast(
++        const IdentifierLookup & identifier_lookup,
++        IdentifierResolveScope & scope);
++        
++    /// Fast path helper methods
++    QueryTreeNodePtr tryResolveFromExpressionArgumentsFast(const IdentifierLookup & identifier_lookup, IdentifierResolveScope & scope);
++    QueryTreeNodePtr tryResolveFromJoinTreeFast(const IdentifierLookup & identifier_lookup, IdentifierResolveScope & scope);
++
+     /// Resolve identifier functions
+ 
+     static bool tryBindIdentifierToAliases(
+@@ -130,6 +144,7 @@ public:
+ 
+ private:
+     std::unordered_map<QueryTreeNodePtr, ProjectionName> & node_to_projection_name;
++    bool use_fast_path = true;
+ };
+ 
+ }
+
+--- a/src/Analyzer/Resolve/IdentifierResolver.cpp
++++ b/src/Analyzer/Resolve/IdentifierResolver.cpp
+@@ -72,6 +72,9 @@ namespace ErrorCodes
+ 
+ namespace DB
+ {
++
++thread_local bool IdentifierResolver::enable_fast_path = true;
++
+ QueryTreeNodePtr IdentifierResolver::convertJoinedColumnTypeToNullIfNeeded(
+     const QueryTreeNodePtr & resolved_identifier,
+     const JoinKind & join_kind,
+@@ -76,6 +79,60 @@ QueryTreeNodePtr IdentifierResolver::convertJoinedColumnTypeToNullIfNeeded(
+     return nullptr;
+ }
+ 
++/// Fast path implementation for performance optimization
++QueryTreeNodePtr IdentifierResolver::tryResolveIdentifierFast(
++    const IdentifierLookup & identifier_lookup,
++    IdentifierResolveScope & scope)
++{
++    if (!use_fast_path || !enable_fast_path)
++        return nullptr;
++        
++    // Only use fast path for simple expression lookups
++    if (!identifier_lookup.isExpressionLookup())
++        return nullptr;
++        
++    // Try expression arguments first (most common case)
++    if (auto result = tryResolveFromExpressionArgumentsFast(identifier_lookup, scope))
++        return result;
++        
++    // Try join tree resolution
++    if (auto result = tryResolveFromJoinTreeFast(identifier_lookup, scope))
++        return result;
++        
++    return nullptr;
++}
++
++QueryTreeNodePtr IdentifierResolver::tryResolveFromExpressionArgumentsFast(
++    const IdentifierLookup & identifier_lookup, 
++    IdentifierResolveScope & scope)
++{
++    auto it = scope.expression_argument_name_to_node.find(identifier_lookup.identifier.getFullName());
++    if (it == scope.expression_argument_name_to_node.end())
++        return nullptr;
++        
++    // For simple cases, return directly without complex compound expression handling
++    if (identifier_lookup.identifier.isShort())
++        return it->second;
++        
++    return nullptr;  // Fall back to full resolution for compound identifiers
++}
++
++QueryTreeNodePtr IdentifierResolver::tryResolveFromJoinTreeFast(
++    const IdentifierLookup & identifier_lookup,
++    IdentifierResolveScope & scope)
++{
++    // For simple column references, try direct table expression lookup
++    if (!identifier_lookup.identifier.isShort())
++        return nullptr;
++        
++    // Check if we have exactly one table expression (simple case)
++    if (scope.table_expression_node_to_data.size() != 1)
++        return nullptr;  // Fall back to full resolution for complex joins
++        
++    auto & [table_expression, table_data] = *scope.table_expression_node_to_data.begin();
++    auto it = table_data.column_name_to_column_node.find(identifier_lookup.identifier.getFullName());
++    
++    return (it != table_data.column_name_to_column_node.end()) ? it->second : nullptr;
++}
++
+ static FunctionNodePtr wrapExpressionNodeInFunctionWithSecondConstantStringArgument(
+     QueryTreeNodePtr expression,
+     std::string function_name,
+@@ -284,6 +341,13 @@ QueryTreeNodePtr IdentifierResolver::tryResolveIdentifierFromCompoundExpression(
+ IdentifierResolveResult IdentifierResolver::tryResolveIdentifierFromExpressionArguments(const IdentifierLookup & identifier_lookup, IdentifierResolveScope & scope)
+ {
++    // Try fast path first for performance
++    if (auto fast_result = tryResolveIdentifierFast(identifier_lookup, scope))
++    {
++        return { .resolved_identifier = fast_result, .resolve_place = IdentifierResolvePlace::EXPRESSION_ARGUMENTS };
++    }
++    
++    // Fall back to full resolution
+     auto it = scope.expression_argument_name_to_node.find(identifier_lookup.identifier.getFullName());
+     bool resolve_full_identifier = it != scope.expression_argument_name_to_node.end();
+ 
+--- a/src/Analyzer/Resolve/QueryAnalyzer.cpp
++++ b/src/Analyzer/Resolve/QueryAnalyzer.cpp
+@@ -151,7 +151,8 @@ namespace ErrorCodes
+ }
+ 
+ QueryAnalyzer::QueryAnalyzer(bool only_analyze_)
+-    : identifier_resolver(node_to_projection_name)
++    : identifier_resolver(node_to_projection_name, true /* enable_fast_path */)
+     , only_analyze(only_analyze_)
+ {}
+ 
+@@ -1234,6 +1235,15 @@ void QueryAnalyzer::resolveQuery(const QueryTreeNodePtr & query_node, Identifie
+     auto & query_node_typed = query_node->as<QueryNode &>();
+     auto * nearest_query_scope = scope.getNearestQueryScope();
+ 
++    // Performance optimization: estimate query complexity and enable/disable fast path
++    size_t estimated_identifier_count = 0;
++    // Simple heuristic: count FROM clause tables and WITH clauses
++    if (query_node_typed.getJoinTree())
++        estimated_identifier_count += countTableExpressions(query_node_typed.getJoinTree()) * 10;
++    if (query_node_typed.getWith())
++        estimated_identifier_count += query_node_typed.getWith()->getChildren().size() * 5;
++    
++    IdentifierResolver::enable_fast_path = estimated_identifier_count < 100;  // Threshold tunable
++    
+     /** WITH section can be safely removed, because WITH section only can provide aliases to query expressions
+       * and CTE table expressions.
+       * We can remove WITH section when we resolve query expressions and resolve table expression.
+@@ -1420,6 +1430,20 @@ void QueryAnalyzer::resolveQuery(const QueryTreeNodePtr & query_node, Identifie
+         throw Exception(ErrorCodes::NOT_IMPLEMENTED, "WINDOW section is not supported");
+ }
+ 
++/// Helper function to estimate query complexity for fast path optimization
++size_t QueryAnalyzer::countTableExpressions(const QueryTreeNodePtr & join_tree_node)
++{
++    if (!join_tree_node)
++        return 0;
++        
++    auto node_type = join_tree_node->getNodeType();
++    if (node_type == QueryTreeNodeType::TABLE || node_type == QueryTreeNodeType::TABLE_FUNCTION)
++        return 1;
++    if (node_type == QueryTreeNodeType::JOIN)
++        return countTableExpressions(join_tree_node->as<JoinNode>().getLeftTableExpression()) + 
++               countTableExpressions(join_tree_node->as<JoinNode>().getRightTableExpression());
++    return 1;  // For subqueries, array joins, etc.
++}
++
+ /** Resolve expression node.
+   * Expression node can be function, lambda, column, constant, query.
+   */
+
+--- a/src/Analyzer/Resolve/QueryAnalyzer.h
++++ b/src/Analyzer/Resolve/QueryAnalyzer.h
+@@ -68,6 +68,9 @@ private:
+     /// Only analyze without building ExecutableQueryPlan
+     bool only_analyze = false;
+ 
++    /// Helper function for query complexity estimation
++    static size_t countTableExpressions(const QueryTreeNodePtr & join_tree_node);
++
+     /** Utility functions
+       */
