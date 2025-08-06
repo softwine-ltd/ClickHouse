@@ -33,3 +33,37 @@ compare code changes
 
 5c800464-6e5e-4880-b4fe-0b44fdd5afb4
 052e2129-d65e-4652-b339-b996b9a3dfda
+
+times for long_query_org.sql with temp table:
+clickhouse:25.1.8.25
+0.284
+7.042
+
+0.275
+6.850
+
+0.252
+6.754
+
+0.293
+6.681
+
+clickhouse:25.3.2.39
+0.277
+6.355
+0.036
+
+
+0.306
+6.576
+0.037
+
+
+clickhouse:25.7.1.3997
+0.321
+8.021
+0.032
+
+0.296
+7.481
+0.032
