@@ -2,8 +2,8 @@
 
 name: VectorSearchStress
 on:
-  schedule:
-    - cron: 47 15 * * 0
+  # schedule:
+  #   - cron: 47 15 * * 0
   workflow_dispatch:
 
 concurrency:

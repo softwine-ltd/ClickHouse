@@ -2,8 +2,8 @@
 
 name: NightlyStatistics
 on:
-  schedule:
-    - cron: 13 5 * * *
+  # schedule:
+  #   - cron: 13 5 * * *
   workflow_dispatch:
 
 concurrency:
